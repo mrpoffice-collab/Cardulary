@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Copy, Check } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -23,6 +24,7 @@ interface SendRequestDialogProps {
   eventName: string;
   organizerName: string;
   eventType: string;
+  guestToken: string;
 }
 
 export default function SendRequestDialog({
@@ -34,6 +36,7 @@ export default function SendRequestDialog({
   eventName,
   organizerName,
   eventType,
+  guestToken,
 }: SendRequestDialogProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -41,6 +44,7 @@ export default function SendRequestDialog({
   const [aiLoading, setAiLoading] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const [copied, setCopied] = useState(false);
   const [method, setMethod] = useState<"email" | "sms">(
     guestEmail ? "email" : guestPhone ? "sms" : "email"
   );
@@ -110,6 +114,20 @@ export default function SendRequestDialog({
       setError("Something went wrong");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleCopyMessage = async () => {
+    try {
+      const submissionLink = `${typeof window !== 'undefined' ? window.location.origin : 'https://cardulary.vercel.app'}/submit/${guestToken}`;
+      const fullMessage = message.replace("[link]", submissionLink);
+
+      await navigator.clipboard.writeText(fullMessage);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy:", err);
+      setError("Failed to copy message");
     }
   };
 
@@ -225,21 +243,42 @@ export default function SendRequestDialog({
           )}
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="flex-col sm:flex-row gap-2">
           <Button
             type="button"
             variant="outline"
-            onClick={() => setOpen(false)}
-            disabled={loading}
+            onClick={handleCopyMessage}
+            disabled={!message || copied}
+            className="gap-2"
           >
-            Cancel
+            {copied ? (
+              <>
+                <Check className="h-4 w-4" />
+                Copied!
+              </>
+            ) : (
+              <>
+                <Copy className="h-4 w-4" />
+                Copy Message
+              </>
+            )}
           </Button>
-          <Button
-            onClick={handleSend}
-            disabled={loading || !message || (!canSendEmail && !canSendSMS)}
-          >
-            {loading ? "Sending..." : `Send via ${method.toUpperCase()}`}
-          </Button>
+          <div className="flex gap-2 flex-1 sm:flex-initial">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setOpen(false)}
+              disabled={loading}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSend}
+              disabled={loading || !message || (!canSendEmail && !canSendSMS)}
+            >
+              {loading ? "Sending..." : `Send via ${method.toUpperCase()}`}
+            </Button>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>
