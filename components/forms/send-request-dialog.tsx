@@ -120,9 +120,23 @@ export default function SendRequestDialog({
   const handleCopyMessage = async () => {
     try {
       const submissionLink = `${typeof window !== 'undefined' ? window.location.origin : 'https://cardulary.vercel.app'}/submit/${guestToken}`;
-      const fullMessage = message.replace("[link]", submissionLink);
 
-      await navigator.clipboard.writeText(fullMessage);
+      // Create a beautiful formatted message
+      const beautifulMessage = `👋 Hi there!
+
+I'm collecting mailing addresses for ${eventName}. Would you mind taking a quick moment to share yours?
+
+📮 Click here to submit your address:
+${submissionLink}
+
+It'll take less than a minute, I promise!
+
+━━━━━━━━━━━━━━━━━━
+🔒 Your information is private and will only be used for ${eventName}. I won't share it with anyone else.
+
+Thank you! 🙏`;
+
+      await navigator.clipboard.writeText(beautifulMessage);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
