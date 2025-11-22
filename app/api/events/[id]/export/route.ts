@@ -119,7 +119,7 @@ export async function GET(
       exportedAt: new Date(),
     });
 
-    return new NextResponse(fileContent, {
+    return new Response(fileContent, {
       status: 200,
       headers: {
         "Content-Type": contentType,
