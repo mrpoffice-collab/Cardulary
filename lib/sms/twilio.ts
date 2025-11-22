@@ -30,11 +30,17 @@ export async function sendAddressRequestSMS(params: SendAddressRequestSMSParams)
   const fullMessage = message.replace("[link]", submissionLink);
 
   try {
+    // Ensure URL has https:// protocol for Twilio
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || '';
+    const callbackUrl = baseUrl.startsWith('http')
+      ? `${baseUrl}/api/webhooks/twilio`
+      : `https://${baseUrl}/api/webhooks/twilio`;
+
     const result = await client.messages.create({
       body: fullMessage,
       to,
       from: process.env.TWILIO_PHONE_NUMBER,
-      statusCallback: `${process.env.NEXT_PUBLIC_APP_URL}/api/webhooks/twilio`,
+      statusCallback: callbackUrl,
     });
 
     return { success: true, data: result };
