@@ -1,6 +1,13 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+let resendClient: Resend | null = null;
+
+function getResendClient() {
+  if (!resendClient && process.env.RESEND_API_KEY) {
+    resendClient = new Resend(process.env.RESEND_API_KEY);
+  }
+  return resendClient;
+}
 
 export interface SendAddressRequestEmailParams {
   to: string;
@@ -15,6 +22,11 @@ export async function sendAddressRequestEmail(
   params: SendAddressRequestEmailParams
 ) {
   const { to, guestName, organizerName, eventName, submissionLink, customMessage } = params;
+
+  const resend = getResendClient();
+  if (!resend) {
+    return { success: false, error: new Error("Resend client not configured") };
+  }
 
   try {
     const result = await resend.emails.send({

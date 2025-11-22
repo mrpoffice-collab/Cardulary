@@ -1,9 +1,16 @@
 import twilio from "twilio";
 
-const client = twilio(
-  process.env.TWILIO_ACCOUNT_SID,
-  process.env.TWILIO_AUTH_TOKEN
-);
+let twilioClient: ReturnType<typeof twilio> | null = null;
+
+function getTwilioClient() {
+  if (!twilioClient && process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN) {
+    twilioClient = twilio(
+      process.env.TWILIO_ACCOUNT_SID,
+      process.env.TWILIO_AUTH_TOKEN
+    );
+  }
+  return twilioClient;
+}
 
 export interface SendAddressRequestSMSParams {
   to: string;
@@ -13,6 +20,11 @@ export interface SendAddressRequestSMSParams {
 
 export async function sendAddressRequestSMS(params: SendAddressRequestSMSParams) {
   const { to, message, submissionLink } = params;
+
+  const client = getTwilioClient();
+  if (!client) {
+    return { success: false, error: new Error("Twilio client not configured") };
+  }
 
   // Replace [link] placeholder with actual link
   const fullMessage = message.replace("[link]", submissionLink);
