@@ -30,7 +30,7 @@ export async function sendAddressRequestEmail(
 
   try {
     const result = await resend.emails.send({
-      from: "Cardulary <noreply@cardulary.app>",
+      from: "Cardulary <noreply@fireflygrove.app>",
       to,
       subject: `${organizerName} needs your mailing address`,
       html: generateEmailHTML(params),
