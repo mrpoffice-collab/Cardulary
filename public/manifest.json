@@ -1,0 +1,17 @@
+{
+  "name": "Cardulary - Address Collection Made Easy",
+  "short_name": "Cardulary",
+  "description": "Collect mailing addresses for your events with ease",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563EB",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

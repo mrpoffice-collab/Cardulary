@@ -1,0 +1,14 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Blue background -->
+  <rect width="512" height="512" rx="80" fill="#2563EB"/>
+
+  <!-- Red "C" for Cardulary -->
+  <path d="M356 256C356 311.228 311.228 356 256 356C200.772 356 156 311.228 156 256C156 200.772 200.772 156 256 156C280.853 156 303.759 165.228 321.569 180.431"
+        stroke="#EF4444"
+        stroke-width="48"
+        stroke-linecap="round"/>
+
+  <!-- Small envelope/mail icon accent -->
+  <rect x="340" y="180" width="60" height="44" rx="6" fill="#EF4444"/>
+  <path d="M370 180L345 200L395 200L370 180Z" fill="#1E40AF"/>
+</svg>
