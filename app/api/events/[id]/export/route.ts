@@ -119,7 +119,12 @@ export async function GET(
       exportedAt: new Date(),
     });
 
-    return new Response(fileContent, {
+    // Convert Buffer to Uint8Array for Response compatibility
+    const responseBody = typeof fileContent === 'string'
+      ? fileContent
+      : new Uint8Array(fileContent);
+
+    return new Response(responseBody, {
       status: 200,
       headers: {
         "Content-Type": contentType,

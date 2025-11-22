@@ -7,7 +7,9 @@
       "Bash(git commit -m \"$(cat <<''EOF''\nInitial commit - Cardulary MVP\n\nBuilt complete event address collection app with:\n- NextAuth authentication (email/password + Google OAuth)\n- Event & guest management\n- AI message personalization (Claude API)\n- Email sending (Resend) & SMS (Twilio)\n- Public guest submission forms\n- Export to CSV, Excel, Minted, Shutterfly, Vistaprint, Avery\n- Responsive UI with Tailwind + shadcn/ui\n- Full TypeScript & Next.js 14 App Router\n\n🤖 Generated with Claude Code\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
       "Bash(git remote add:*)",
       "Bash(git branch:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(npx tsc:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []
