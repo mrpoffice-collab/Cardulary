@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import AddGuestButton from "@/components/forms/add-guest-button";
 import SendRequestDialog from "@/components/forms/send-request-dialog";
 import ExportDialog from "@/components/forms/export-dialog";
+import CopyLinkButton from "@/components/copy-link-button";
 
 export default async function EventDetailPage({
   params,
@@ -164,16 +165,19 @@ export default async function EventDetailPage({
                         {new Date(guest.createdAt).toLocaleDateString()}
                       </td>
                       <td className="py-4">
-                        <SendRequestDialog
-                          eventId={event.id}
-                          guestId={guest.id}
-                          guestName={`${guest.firstName} ${guest.lastName}`}
-                          guestEmail={guest.email}
-                          guestPhone={guest.phone}
-                          eventName={event.name}
-                          organizerName={session.user?.name || "The organizer"}
-                          eventType={event.eventType || "event"}
-                        />
+                        <div className="flex gap-2">
+                          <CopyLinkButton token={guest.token} />
+                          <SendRequestDialog
+                            eventId={event.id}
+                            guestId={guest.id}
+                            guestName={`${guest.firstName} ${guest.lastName}`}
+                            guestEmail={guest.email}
+                            guestPhone={guest.phone}
+                            eventName={event.name}
+                            organizerName={session.user?.name || "The organizer"}
+                            eventType={event.eventType || "event"}
+                          />
+                        </div>
                       </td>
                     </tr>
                   ))}
