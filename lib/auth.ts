@@ -6,6 +6,7 @@ import { db } from "@/lib/db";
 import { compare } from "bcryptjs";
 import { users } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
+import { validateEmail } from "@/lib/utils/validation";
 
 export const authOptions: NextAuthOptions = {
   adapter: db ? (DrizzleAdapter(db) as any) : undefined,
@@ -30,11 +31,19 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
+        // Validate and normalize email
+        const emailValidation = validateEmail(credentials.email);
+        if (!emailValidation.valid) {
+          return null;
+        }
+
         const user = await db.query.users.findFirst({
-          where: eq(users.email, credentials.email),
+          where: eq(users.email, emailValidation.email!),
         });
 
         if (!user || !user.password) {
+          // Return null without distinguishing between invalid email and invalid password
+          // This prevents user enumeration
           return null;
         }
 

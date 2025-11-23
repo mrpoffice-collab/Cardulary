@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { events } from "@/lib/db/schema";
+import { validateEventData } from "@/lib/utils/validation";
 
 export async function GET() {
   try {
@@ -21,7 +22,7 @@ export async function GET() {
   } catch (error) {
     console.error("Get events error:", error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "Unable to retrieve events. Please try again later." },
       { status: 500 }
     );
   }
@@ -37,9 +38,11 @@ export async function POST(req: Request) {
 
     const { name, eventType, eventDate, customMessage } = await req.json();
 
-    if (!name) {
+    // Validate and sanitize event data
+    const validation = validateEventData({ name, eventType, customMessage });
+    if (!validation.valid) {
       return NextResponse.json(
-        { error: "Event name is required" },
+        { error: validation.error },
         { status: 400 }
       );
     }
@@ -48,10 +51,10 @@ export async function POST(req: Request) {
       .insert(events)
       .values({
         userId: session.user.id,
-        name,
-        eventType: eventType || null,
+        name: validation.data!.name,
+        eventType: validation.data!.eventType || null,
         eventDate: eventDate || null,
-        customMessage: customMessage || null,
+        customMessage: validation.data!.customMessage || null,
         activeFields: {
           nickname: false,
           rsvp: false,
@@ -65,7 +68,7 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error("Create event error:", error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "Unable to create event. Please try again later." },
       { status: 500 }
     );
   }

@@ -3,34 +3,58 @@ import { hash } from "bcryptjs";
 import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
+import { validateName, validateEmail, validatePassword } from "@/lib/utils/validation";
+import { rateLimit, RATE_LIMITS, rateLimitResponse } from "@/lib/utils/rate-limit";
 
 export async function POST(req: Request) {
+  // Apply rate limiting
+  const rateLimitResult = rateLimit(req, RATE_LIMITS.signup);
+  if (!rateLimitResult.success) {
+    return rateLimitResponse(
+      rateLimitResult.limit,
+      rateLimitResult.remaining,
+      rateLimitResult.reset
+    );
+  }
+
   try {
     const { name, email, password } = await req.json();
 
-    // Validate input
-    if (!email || !password || !name) {
+    // Validate and sanitize name
+    const nameValidation = validateName(name, "Name");
+    if (!nameValidation.valid) {
       return NextResponse.json(
-        { error: "Missing required fields" },
+        { error: nameValidation.error },
         { status: 400 }
       );
     }
 
-    if (password.length < 8) {
+    // Validate and normalize email
+    const emailValidation = validateEmail(email);
+    if (!emailValidation.valid) {
       return NextResponse.json(
-        { error: "Password must be at least 8 characters" },
+        { error: emailValidation.error },
         { status: 400 }
       );
     }
 
-    // Check if user already exists
+    // Validate password
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation.valid) {
+      return NextResponse.json(
+        { error: passwordValidation.error },
+        { status: 400 }
+      );
+    }
+
+    // Check if user already exists (generic error to prevent email enumeration)
     const existingUser = await db.query.users.findFirst({
-      where: eq(users.email, email.toLowerCase()),
+      where: eq(users.email, emailValidation.email!),
     });
 
     if (existingUser) {
       return NextResponse.json(
-        { error: "User with this email already exists" },
+        { error: "Unable to create account. Please try a different email." },
         { status: 400 }
       );
     }
@@ -42,8 +66,8 @@ export async function POST(req: Request) {
     const [newUser] = await db
       .insert(users)
       .values({
-        name,
-        email: email.toLowerCase(),
+        name: nameValidation.name!,
+        email: emailValidation.email!,
         password: hashedPassword,
       })
       .returning();
@@ -55,7 +79,7 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error("Signup error:", error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "Unable to create account. Please try again later." },
       { status: 500 }
     );
   }

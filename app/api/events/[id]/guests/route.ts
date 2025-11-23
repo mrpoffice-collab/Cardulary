@@ -38,7 +38,7 @@ export async function GET(
   } catch (error) {
     console.error("Get guests error:", error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "Unable to retrieve guests. Please try again later." },
       { status: 500 }
     );
   }
@@ -69,15 +69,52 @@ export async function POST(
 
     const { firstName, lastName, email, phone } = await req.json();
 
-    // Validate input
-    if (!firstName || !lastName) {
+    // Validate and sanitize names
+    const { validateName, validateEmail, validatePhone } = await import("@/lib/utils/validation");
+
+    const firstNameValidation = validateName(firstName, "First name");
+    if (!firstNameValidation.valid) {
       return NextResponse.json(
-        { error: "First name and last name are required" },
+        { error: firstNameValidation.error },
         { status: 400 }
       );
     }
 
-    if (!email && !phone) {
+    const lastNameValidation = validateName(lastName, "Last name");
+    if (!lastNameValidation.valid) {
+      return NextResponse.json(
+        { error: lastNameValidation.error },
+        { status: 400 }
+      );
+    }
+
+    // Validate contact info
+    let validatedEmail = null;
+    let validatedPhone = null;
+
+    if (email) {
+      const emailValidation = validateEmail(email);
+      if (!emailValidation.valid) {
+        return NextResponse.json(
+          { error: emailValidation.error },
+          { status: 400 }
+        );
+      }
+      validatedEmail = emailValidation.email;
+    }
+
+    if (phone) {
+      const phoneValidation = validatePhone(phone);
+      if (!phoneValidation.valid) {
+        return NextResponse.json(
+          { error: phoneValidation.error },
+          { status: 400 }
+        );
+      }
+      validatedPhone = phoneValidation.phone;
+    }
+
+    if (!validatedEmail && !validatedPhone) {
       return NextResponse.json(
         { error: "At least one contact method (email or phone) is required" },
         { status: 400 }
@@ -87,15 +124,15 @@ export async function POST(
     // Generate unique token for submission link
     const token = generateGuestToken();
 
-    // Create guest
+    // Create guest with validated data
     const [newGuest] = await db
       .insert(eventGuests)
       .values({
         eventId: params.id,
-        firstName,
-        lastName,
-        email: email || null,
-        phone: phone || null,
+        firstName: firstNameValidation.name!,
+        lastName: lastNameValidation.name!,
+        email: validatedEmail,
+        phone: validatedPhone,
         token,
         status: "not_sent",
       })
@@ -105,7 +142,7 @@ export async function POST(
   } catch (error) {
     console.error("Create guest error:", error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "Unable to create guest. Please try again later." },
       { status: 500 }
     );
   }
