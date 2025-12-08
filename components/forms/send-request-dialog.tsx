@@ -32,7 +32,6 @@ export default function SendRequestDialog({
   guestId,
   guestName,
   guestEmail,
-  guestPhone,
   eventName,
   organizerName,
   eventType,
@@ -45,13 +44,9 @@ export default function SendRequestDialog({
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [copied, setCopied] = useState(false);
-  const [method, setMethod] = useState<"email" | "sms">(
-    guestEmail ? "email" : guestPhone ? "sms" : "email"
-  );
   const [tone, setTone] = useState<"warm_casual" | "polite_formal" | "playful">("warm_casual");
 
   const canSendEmail = !!guestEmail;
-  const canSendSMS = !!guestPhone;
 
   const handleGenerateAI = async () => {
     setAiLoading(true);
@@ -97,7 +92,6 @@ export default function SendRequestDialog({
         body: JSON.stringify({
           guestIds: [guestId],
           message,
-          method,
         }),
       });
 
@@ -122,19 +116,19 @@ export default function SendRequestDialog({
       const submissionLink = `${typeof window !== 'undefined' ? window.location.origin : 'https://cardulary.vercel.app'}/submit/${guestToken}`;
 
       // Create a beautiful formatted message
-      const beautifulMessage = `👋 Hi there!
+      const beautifulMessage = `Hi there!
 
 I'm collecting mailing addresses for ${eventName}. Would you mind taking a quick moment to share yours?
 
-📮 Click here to submit your address:
+Click here to submit your address:
 ${submissionLink}
 
 It'll take less than a minute, I promise!
 
-━━━━━━━━━━━━━━━━━━
-🔒 Your information is private and will only be used for ${eventName}. I won't share it with anyone else.
+---
+Your information is private and will only be used for ${eventName}. I won't share it with anyone else.
 
-Thank you! 🙏`;
+Thank you!`;
 
       await navigator.clipboard.writeText(beautifulMessage);
       setCopied(true);
@@ -156,45 +150,16 @@ Thank you! 🙏`;
         <DialogHeader>
           <DialogTitle>Send Address Request to {guestName}</DialogTitle>
           <DialogDescription>
-            Choose how to send and customize your message
+            Send an email or copy the link to share manually
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
-          {/* Method Selection */}
-          <div className="space-y-2">
-            <Label>Send via</Label>
-            <div className="flex gap-3">
-              <button
-                type="button"
-                onClick={() => setMethod("email")}
-                disabled={!canSendEmail || loading}
-                className={`flex-1 p-3 border rounded-lg text-left transition ${
-                  method === "email"
-                    ? "border-blue-600 bg-blue-50"
-                    : "border-gray-200 hover:border-gray-300"
-                } ${!canSendEmail ? "opacity-50 cursor-not-allowed" : ""}`}
-              >
-                <div className="font-medium">📧 Email</div>
-                <div className="text-sm text-gray-600">
-                  {guestEmail || "No email available"}
-                </div>
-              </button>
-              <button
-                type="button"
-                onClick={() => setMethod("sms")}
-                disabled={!canSendSMS || loading}
-                className={`flex-1 p-3 border rounded-lg text-left transition ${
-                  method === "sms"
-                    ? "border-blue-600 bg-blue-50"
-                    : "border-gray-200 hover:border-gray-300"
-                } ${!canSendSMS ? "opacity-50 cursor-not-allowed" : ""}`}
-              >
-                <div className="font-medium">💬 SMS</div>
-                <div className="text-sm text-gray-600">
-                  {guestPhone || "No phone available"}
-                </div>
-              </button>
+          {/* Email Status */}
+          <div className="p-3 border rounded-lg bg-gray-50">
+            <div className="font-medium">Email</div>
+            <div className="text-sm text-gray-600">
+              {guestEmail || "No email available - use Copy Link to share manually"}
             </div>
           </div>
 
@@ -231,7 +196,7 @@ Thank you! 🙏`;
             disabled={aiLoading || loading}
             className="w-full"
           >
-            {aiLoading ? "Generating..." : "✨ Generate AI Message"}
+            {aiLoading ? "Generating..." : "Generate AI Message"}
           </Button>
 
           {/* Message Preview/Edit */}
@@ -246,7 +211,7 @@ Thank you! 🙏`;
               disabled={loading}
             />
             <p className="text-xs text-gray-500">
-              Use {"{firstName}"} to personalize. [link] will be automatically added.
+              Use {"{firstName}"} to personalize. The submission link will be automatically included.
             </p>
           </div>
 
@@ -262,7 +227,7 @@ Thank you! 🙏`;
             type="button"
             variant="outline"
             onClick={handleCopyMessage}
-            disabled={!message || copied}
+            disabled={copied}
             className="gap-2"
           >
             {copied ? (
@@ -273,7 +238,7 @@ Thank you! 🙏`;
             ) : (
               <>
                 <Copy className="h-4 w-4" />
-                Copy Message
+                Copy Link & Message
               </>
             )}
           </Button>
@@ -288,9 +253,9 @@ Thank you! 🙏`;
             </Button>
             <Button
               onClick={handleSend}
-              disabled={loading || !message || (!canSendEmail && !canSendSMS)}
+              disabled={loading || !message || !canSendEmail}
             >
-              {loading ? "Sending..." : `Send via ${method.toUpperCase()}`}
+              {loading ? "Sending..." : "Send Email"}
             </Button>
           </div>
         </DialogFooter>

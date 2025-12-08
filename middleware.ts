@@ -13,7 +13,7 @@ export function middleware(request: NextRequest) {
     "style-src 'self' 'unsafe-inline'", // Tailwind requires unsafe-inline
     "img-src 'self' data: https: blob:", // Allow images from various sources
     "font-src 'self' data:",
-    "connect-src 'self' https://api.anthropic.com https://api.resend.com https://api.twilio.com",
+    "connect-src 'self' https://api.anthropic.com https://api.resend.com",
     "frame-ancestors 'none'", // Prevent clickjacking
     "base-uri 'self'",
     "form-action 'self'",

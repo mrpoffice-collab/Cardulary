@@ -51,9 +51,9 @@ export default function Home() {
         <div id="features" className="mt-32 grid md:grid-cols-3 gap-8">
           <div className="bg-white p-8 rounded-xl shadow-sm">
             <div className="text-3xl mb-4">✉️</div>
-            <h3 className="text-xl font-semibold mb-2">Email & SMS Requests</h3>
+            <h3 className="text-xl font-semibold mb-2">Email & Share Links</h3>
             <p className="text-gray-600">
-              Send personalized address requests via email or text with AI-powered messaging
+              Send personalized email requests or share links via any messaging app
             </p>
           </div>
           <div className="bg-white p-8 rounded-xl shadow-sm">

@@ -18,11 +18,6 @@ interface EnvConfig {
   // Email (Resend)
   RESEND_API_KEY?: string;
 
-  // SMS (Twilio)
-  TWILIO_ACCOUNT_SID?: string;
-  TWILIO_AUTH_TOKEN?: string;
-  TWILIO_PHONE_NUMBER?: string;
-
   // AI (Anthropic)
   ANTHROPIC_API_KEY?: string;
 
@@ -40,9 +35,6 @@ const OPTIONAL_ENV_VARS: (keyof EnvConfig)[] = [
   "GOOGLE_CLIENT_ID",
   "GOOGLE_CLIENT_SECRET",
   "RESEND_API_KEY",
-  "TWILIO_ACCOUNT_SID",
-  "TWILIO_AUTH_TOKEN",
-  "TWILIO_PHONE_NUMBER",
   "ANTHROPIC_API_KEY",
   "NEXT_PUBLIC_APP_URL",
 ];
