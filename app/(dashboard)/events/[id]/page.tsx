@@ -15,8 +15,9 @@ import ExportDialog from "@/components/forms/export-dialog";
 export default async function EventDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = await params;
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.id) {
@@ -26,7 +27,7 @@ export default async function EventDetailPage({
   // Fetch event
   const event = await db.query.events.findFirst({
     where: and(
-      eq(events.id, params.id),
+      eq(events.id, id),
       eq(events.userId, session.user.id)
     ),
   });
@@ -37,7 +38,7 @@ export default async function EventDetailPage({
 
   // Fetch guests for this event
   const guests = await db.query.eventGuests.findMany({
-    where: eq(eventGuests.eventId, params.id),
+    where: eq(eventGuests.eventId, id),
     orderBy: (eventGuests, { desc }) => [desc(eventGuests.createdAt)],
   });
 

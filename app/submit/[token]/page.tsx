@@ -7,11 +7,12 @@ import SubmissionForm from "./submission-form";
 export default async function SubmissionPage({
   params,
 }: {
-  params: { token: string };
+  params: Promise<{ token: string }>;
 }) {
+  const { token } = await params;
   // Find guest by token
   const guest = await db.query.eventGuests.findFirst({
-    where: eq(eventGuests.token, params.token),
+    where: eq(eventGuests.token, token),
   });
 
   if (!guest) {
@@ -54,7 +55,7 @@ export default async function SubmissionPage({
 
           {/* Submission Form */}
           <SubmissionForm
-            token={params.token}
+            token={token}
             guestName={`${guest.firstName} ${guest.lastName}`}
             existingSubmission={existingSubmission}
           />
