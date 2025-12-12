@@ -17,9 +17,10 @@ import {
 
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
@@ -28,7 +29,7 @@ export async function GET(
 
     // Verify event ownership
     const event = await db.query.events.findFirst({
-      where: and(eq(events.id, params.id), eq(events.userId, session.user.id)),
+      where: and(eq(events.id, id), eq(events.userId, session.user.id)),
     });
 
     if (!event) {
@@ -42,7 +43,7 @@ export async function GET(
 
     // Fetch guests with their submissions
     const guests = await db.query.eventGuests.findMany({
-      where: eq(eventGuests.eventId, params.id),
+      where: eq(eventGuests.eventId, id),
       with: {
         addressSubmissions: {
           where: eq(addressSubmissions.isCurrent, true),
@@ -112,7 +113,7 @@ export async function GET(
 
     // Log export event
     await db.insert(exports).values({
-      eventId: params.id,
+      eventId: id,
       userId: session.user.id,
       format,
       filterCriteria: { status: statusFilter || "all" },

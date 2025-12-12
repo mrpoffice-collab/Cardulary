@@ -9,9 +9,10 @@ import { getSubmissionUrl } from "@/lib/utils/token";
 
 export async function POST(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
@@ -20,7 +21,7 @@ export async function POST(
 
     // Verify event ownership
     const event = await db.query.events.findFirst({
-      where: and(eq(events.id, params.id), eq(events.userId, session.user.id)),
+      where: and(eq(events.id, id), eq(events.userId, session.user.id)),
     });
 
     if (!event) {
@@ -46,7 +47,7 @@ export async function POST(
     // Fetch selected guests
     const guests = await db.query.eventGuests.findMany({
       where: and(
-        eq(eventGuests.eventId, params.id),
+        eq(eventGuests.eventId, id),
         inArray(eventGuests.id, guestIds)
       ),
     });
